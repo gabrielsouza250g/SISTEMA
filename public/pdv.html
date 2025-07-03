@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>PDV - Unilanches</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .form-group { margin-bottom:1.5rem; display:flex; align-items:center; gap:0.5rem; }
+    .form-group label { font-weight:600; color:var(--text-dark); white-space:nowrap; }
+    #productSelect { flex:1; }
+    #addProdutoBtn, #finalizar-venda {
+      background-color:var(--primary-color); color:var(--text-on-primary);
+      border:none; padding:0.7rem 1.2rem; border-radius:var(--border-radius-md);
+      font-weight:600; cursor:pointer; transition:background-color 0.2s;
+    }
+    #addProdutoBtn:hover, #finalizar-venda:hover { background-color:var(--primary-dark); }
+    .table-container { margin-top:2rem; }
+  </style>
+</head>
+<body>
+  <main class="admin-container">
+    <div class="container">
+      <h1>PDV — Ponto de Venda</h1>
+
+      <div class="form-group">
+        <label for="productSelect">Produtos:</label>
+        <select id="productSelect"><option>Carregando…</option></select>
+        <button id="addProdutoBtn">Adicionar</button>
+      </div>
+
+      <h2 style="color:var(--text-dark)">Carrinho</h2>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr><th>Produto</th><th>Qtd.</th><th>Preço</th><th>Subtotal</th><th>Ações</th></tr>
+          </thead>
+          <tbody id="carrinho-tabela-corpo"></tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" style="text-align:right;font-weight:600;color:var(--text-dark);">Total:</td>
+              <td colspan="2" id="total-venda" style="font-weight:600;color:var(--primary-color);">R$ 0,00</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <button id="finalizar-venda" onclick="irParaFinalizar()">Finalizar Venda</button>
+
+      <!-- ============================= -->
+    <!-- Lista de Vendas já Registradas -->
+    <!-- ============================= -->
+    <section class="sales-registered" style="margin-top:2rem;">
+      <h2>Vendas Registradas</h2>
+      <ul id="pdv-sales-list" style="list-style:none; padding:0;"></ul>
+    </section>
+    </div>
+  </main>
+
+  <!-- puxa todas as funções gerais, incluindo fetchPDVSales() -->
+  <script src="script.js"></script>
+
+  <script>
+    const productSelect = document.getElementById('productSelect');
+    const addBtn         = document.getElementById('addProdutoBtn');
+    const carrinhoBody   = document.getElementById('carrinho-tabela-corpo');
+    const totalElem      = document.getElementById('total-venda');
+    let produtos = [], carrinho = [];
+
+    async function carregarProdutos() {
+      const res = await fetch('/api/produtos');
+      produtos = await res.json();
+      productSelect.innerHTML = produtos.length
+        ? '<option value=\"\">Selecione…</option>' +
+          produtos.map(p =>
+            `<option value=\"${p.id}\" data-preco=\"${p.preco_venda}\" data-stock=\"${p.quantidade_estoque}\">`+
+            `${p.nome} — R$ ${parseFloat(p.preco_venda).toFixed(2)} (Qtd: ${p.quantidade_estoque})</option>`
+          ).join('')
+        : '<option value=\"\">Sem produtos</option>';
+    }
+
+    addBtn.onclick = () => {
+      const opt = productSelect.selectedOptions[0];
+      if (!opt.value) return alert('Selecione um produto.');
+      const id    = +opt.value;
+      const preco = parseFloat(opt.dataset.preco);
+      const stock = +opt.dataset.stock;
+      const nome  = opt.textContent.split(' — ')[0];
+      const ex    = carrinho.find(i => i.produto_id===id);
+      if (ex) {
+        if (ex.quantidade < stock) ex.quantidade++;
+        else return alert('Estoque insuficiente.');
+      } else if (stock>0) {
+        carrinho.push({ produto_id:id, nome, preco_unitario:preco, quantidade:1, stock });
+      } else return alert('Sem estoque.');
+      renderCarrinho();
+      productSelect.value = '';
+    };
+
+    function renderCarrinho(){
+      carrinhoBody.innerHTML = carrinho.map((it,i)=>
+        `<tr>
+          <td>${it.nome}</td>
+          <td><input type="number" min="1" max="${it.stock}" value="${it.quantidade}" data-idx="${i}"/></td>
+          <td>R$ ${it.preco_unitario.toFixed(2)}</td>
+          <td>R$ ${(it.quantidade*it.preco_unitario).toFixed(2)}</td>
+          <td><button data-idx="${i}">Remover</button></td>
+        </tr>`
+      ).join('');
+      // eventos
+      document.querySelectorAll('input[data-idx]').forEach(el=>{
+        el.oninput = e=>{
+          const idx = +e.target.dataset.idx;
+          let v = parseInt(e.target.value)||1;
+          if (v>carrinho[idx].stock){ v=carrinho[idx].stock; alert('Sem estoque.'); }
+          carrinho[idx].quantidade=v; renderCarrinho();
+        };
+      });
+      document.querySelectorAll('button[data-idx]').forEach(el=>{
+        el.onclick = e=>{
+          carrinho.splice(+e.target.dataset.idx,1); renderCarrinho();
+        };
+      });
+      const total = carrinho.reduce((s,it)=>s+it.quantidade*it.preco_unitario,0);
+      totalElem.textContent = `R$ ${total.toFixed(2)}`;
+    }
+
+    window.irParaFinalizar = ()=>{
+      localStorage.setItem('carrinho', JSON.stringify(carrinho));
+      const total = totalElem.textContent.replace('R$ ','');
+      location.href = `finalizarvenda.html?total=${encodeURIComponent(total)}`;
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+  carregarProdutos();
+  fetchPDVSales();
+});
+  </script>
+</body>
+</html>

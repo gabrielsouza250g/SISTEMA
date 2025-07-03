@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Categorias - Unilanches Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Estilos específicos para esta página, se necessário */
+        .form-section {
+            margin-bottom: 2.5rem;
+            padding: 2rem;
+            background-color: var(--bg-card);
+            border-radius: var(--border-radius-md);
+            box-shadow: var(--shadow-sm);
+        }
+        .table-container {
+            overflow-x: auto; /* Para tabelas responsivas */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+        }
+        th, td {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        th {
+            background-color: var(--bg-element-light);
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+        td .btn-action {
+            margin-right: 0.5rem;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.8rem;
+        }
+        .btn-edit {
+            background-color: var(--secondary-color);
+            color: var(--text-on-primary);
+        }
+        .btn-edit:hover {
+            background-color: var(--secondary-dark);
+        }
+        .btn-delete {
+            background-color: var(--primary-color);
+            color: var(--text-on-primary);
+        }
+        .btn-delete:hover {
+            background-color: var(--primary-dark);
+        }
+        .form-inline {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end; /* Alinha o botão com a base dos inputs */
+        }
+        .form-inline .form-group {
+            flex-grow: 1;
+        }
+         .form-inline button {
+            flex-shrink: 0; /* Impede que o botão encolha */
+        }
+    </style>
+</head>
+<body>
+    <header class="topbar admin-header">
+        <div class="container">
+            <div class="logo-area">
+                <a href="administracao.html">
+                </a>
+            </div>
+            <nav id="mainNav">
+                <span id="emailUsuario" class="nav-link"></span>
+                <a href="administracao.html" class="nav-link">Painel Principal</a>
+                <a href="#" class="nav-link sair-btn" onclick="logout()">Sair</a>
+            </nav>
+            <button class="mobile-nav-toggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="mainNav">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <section class="admin-container">
+            <div class="container">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom:1.5rem;">
+                    <h1>Gerenciar Categorias de Produtos</h1>
+                    <a href="administracao.html" class="button-secondary" style="border-color: var(--admin-primary-color); color: var(--admin-primary-color);">Voltar ao Painel</a>
+                </div>
+
+                <div class="form-section">
+                    <h2 style="margin-bottom: 1.5rem;">Nova Categoria / Editar Categoria</h2>
+                    <form id="categoryForm">
+                        <input type="hidden" id="categoryId" name="categoryId">
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label for="categoryName">Nome da Categoria:</label>
+                            <input type="text" id="categoryName" name="categoryName" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label for="categorySlug">Slug (ex: 'salgados', 'bebidas'):</label>
+                            <input type="text" id="categorySlug" name="categorySlug" required pattern="[a-z0-9]+(?:-[a-z0-9]+)*" title="Apenas letras minúsculas, números e hífens. Ex: lanches-rapidos">
+                            <small style="display:block; font-size:0.8rem; color:var(--text-light);">Usado para filtros e URLs. Use letras minúsculas, números e hífens.</small>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label for="categoryImageUrl">URL da Imagem (opcional):</label>
+                            <input type="url" id="categoryImageUrl" name="categoryImageUrl" placeholder="https://exemplo.com/imagem.png">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1.5rem;">
+                            <label for="categoryDescription">Descrição (opcional):</label>
+                            <textarea id="categoryDescription" name="categoryDescription" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="button-cta" style="background-color: var(--admin-primary-color);">Salvar Categoria</button>
+                        <button type="button" id="cancelEditCategory" class="button-secondary" style="display:none; margin-left:10px;">Cancelar Edição</button>
+                    </form>
+                </div>
+
+                <div class="table-container">
+                    <h2 style="margin-bottom: 1rem;">Categorias Existentes</h2>
+                    <table id="categoriesTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>Slug</th>
+                                <th>Imagem</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="5" style="text-align:center;">Carregando categorias...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer style="background-color: var(--bg-main); border-top: 1px solid var(--border-color); padding: 1.5rem 0;">
+        <div class="container">
+            <div class="footer-bottom" style="text-align: center; color: var(--text-light);">
+                <p>&copy; 2024-2025 Unilanches - Painel Administrativo.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Script específico para gerenciar-categorias.html
+        const categoryForm = document.getElementById('categoryForm');
+        const categoryIdField = document.getElementById('categoryId');
+        const categoryNameField = document.getElementById('categoryName');
+        const categorySlugField = document.getElementById('categorySlug');
+        const categoryImageUrlField = document.getElementById('categoryImageUrl');
+        const categoryDescriptionField = document.getElementById('categoryDescription');
+        const categoriesTableBody = document.querySelector('#categoriesTable tbody');
+        const cancelEditBtn = document.getElementById('cancelEditCategory');
+
+        // Função para gerar slug a partir do nome (simples)
+        function generateSlug(name) {
+            if (!name) return '';
+            return name.toLowerCase()
+                       .replace(/\s+/g, '-')         // Substitui espaços por hífens
+                       .replace(/[^\w-]+/g, '')    // Remove caracteres não alfanuméricos (exceto hífen)
+                       .replace(/--+/g, '-');       // Substitui múltiplos hífens por um único
+        }
+        
+        if(categoryNameField && categorySlugField){
+            categoryNameField.addEventListener('input', function() {
+                categorySlugField.value = generateSlug(this.value);
+            });
+        }
+
+
+        async function fetchCategories() {
+            try {
+                const response = await fetch('/api/categorias'); // Usa a nova rota com prefixo /api
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.message || `Erro HTTP: ${response.status}`);
+                }
+                const categories = await response.json();
+                renderCategories(categories);
+            } catch (error) {
+                console.error('Erro ao buscar categorias:', error);
+                categoriesTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Erro ao carregar categorias: ${error.message}</td></tr>`;
+            }
+        }
+
+        function renderCategories(categories) {
+            categoriesTableBody.innerHTML = ''; // Limpa a tabela
+            if (categories.length === 0) {
+                categoriesTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Nenhuma categoria cadastrada.</td></tr>';
+                return;
+            }
+            categories.forEach(category => {
+                const row = categoriesTableBody.insertRow();
+                row.innerHTML = `
+                    <td>${category.id}</td>
+                    <td>${category.nome}</td>
+                    <td>${category.slug}</td>
+                    <td>${category.imagem_url ? `<img src="${category.imagem_url}" alt="${category.nome}" style="width:50px; height:auto; border-radius:4px;">` : 'N/A'}</td>
+                    <td>
+                        <button class="btn-action btn-edit" onclick="editCategory(${category.id}, '${category.nome}', '${category.slug}', '${category.imagem_url || ''}', '${category.descricao || ''}')"><i class="fas fa-edit"></i> Editar</button>
+                        <button class="btn-action btn-delete" onclick="deleteCategory(${category.id})"><i class="fas fa-trash"></i> Deletar</button>
+                    </td>
+                `;
+            });
+        }
+
+        categoryForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const id = categoryIdField.value;
+            const nome = categoryNameField.value;
+            const slug = categorySlugField.value;
+            const imagem_url = categoryImageUrlField.value;
+            const descricao = categoryDescriptionField.value;
+
+            const method = id ? 'PUT' : 'POST';
+            const url = id ? `/api/categorias/${id}` : '/api/categorias';
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome, slug, imagem_url, descricao })
+                });
+                const data = await response.json();
+                alert(data.message);
+                if (response.ok) {
+                    categoryForm.reset();
+                    categoryIdField.value = ''; // Limpa o ID oculto
+                    cancelEditBtn.style.display = 'none';
+                    fetchCategories(); // Recarrega a lista
+                }
+            } catch (error) {
+                console.error('Erro ao salvar categoria:', error);
+                alert(error.message || 'Erro ao salvar categoria.');
+            }
+        });
+
+        window.editCategory = function(id, nome, slug, imagem_url, descricao) {
+            categoryIdField.value = id;
+            categoryNameField.value = nome;
+            categorySlugField.value = slug;
+            categoryImageUrlField.value = imagem_url || '';
+            categoryDescriptionField.value = descricao || '';
+            cancelEditBtn.style.display = 'inline-block';
+            categoryNameField.focus();
+            window.scrollTo({ top: categoryForm.offsetTop - 80, behavior: 'smooth' }); // Rola para o formulário
+        }
+        
+        cancelEditBtn.addEventListener('click', () => {
+            categoryForm.reset();
+            categoryIdField.value = '';
+            cancelEditBtn.style.display = 'none';
+        });
+
+        window.deleteCategory = async function(id) {
+            if (!confirm('Tem certeza que deseja deletar esta categoria? Esta ação não pode ser desfeita.')) {
+                return;
+            }
+            try {
+                const response = await fetch(`/api/categorias/${id}`, { method: 'DELETE' });
+                const data = await response.json();
+                alert(data.message);
+                if (response.ok) {
+                    fetchCategories(); // Recarrega a lista
+                }
+            } catch (error) {
+                console.error('Erro ao deletar categoria:', error);
+                alert(error.message || 'Erro ao deletar categoria.');
+            }
+        }
+
+        // Script para menu mobile
+        const mobileNavTogglePage = document.querySelector('.mobile-nav-toggle');
+        const navPage = document.querySelector('.topbar nav');
+        if (mobileNavTogglePage && navPage) {
+            mobileNavTogglePage.addEventListener('click', () => {
+                navPage.classList.toggle('active');
+                const icon = mobileNavTogglePage.querySelector('i');
+                icon.classList.toggle('fa-bars');
+                icon.classList.toggle('fa-times');
+            });
+        }
+        
+        // Carregar categorias ao iniciar a página
+        document.addEventListener('DOMContentLoaded', fetchCategories);
+    </script>
+</body>
+</html>

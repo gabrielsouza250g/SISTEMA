@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cardápio Completo - Unilanches</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="topbar">
+        <div class="container">
+            <div class="logo-area">
+                <a href="index.html"> 
+                    <img src="imagens/logo.png" onerror="this.onerror=null;this.src='https://placehold.co/180x50/E63946/FFFFFF?text=Unilanches&font=Poppins';" alt="Unilanches Logo" class="logo-img">
+                </a>
+            </div>
+            <nav id="mainNav">
+                <span id="boasVindas" class="nav-link"></span> 
+                <a href="home.html" class="nav-link active">Cardápio</a>
+                <a href="perfil.html" class="nav-link">Meu Perfil</a>
+                <a href="#" class="nav-link sair-btn" onclick="logout()">Sair</a> 
+            </nav>
+            <button class="mobile-nav-toggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="mainNav">
+                <i class="fas fa-bars" aria-hidden="true"></i>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container hero-container">
+                <div class="hero-content">
+                    <h1>Peça seu Lanche <span class="highlight">Favorito</span>, em Um Clique!</h1>
+                    
+                    <a href="cardapio.html" class="button-hero-cta">Ver Cardápio Agora <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="hero-image-area">
+                    <img src="/imagens/pastellogo.png" onerror="this.onerror=null;this.src='https://placehold.co/550x450/F4A261/2B2D42?text=Lanches+Deliciosos&font=Poppins';" alt="Lanches Deliciosos Unilanches" class="hero-main-img animated">
+                </div>
+            </div>
+        </section>
+
+        <section id="produtos" class="produtos">
+            <div class="container">
+                <div class="category-filters" id="categoryFiltersHome" style="margin-bottom: 2.5rem; text-align: center; display:flex; flex-wrap:wrap; justify-content:center; gap: 0.5rem;">
+                    <!-- Botão “Todos” já ativo por padrão -->
+                    <button class="filter-btn active" data-slug="todos" onclick="filterProductsHome('todos')">Todos</button>
+                    <!-- Demais botões de categoria serão inseridos via carregarCategoriasHome() -->
+                </div>
+
+                <div class="produto-lista" id="produtoListaHome">
+                    <p>Carregando cardápio completo...</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about">
+                    <img src="https://placehold.co/150x40/EFEBE8/3D3A37?text=Unilanches&font=Poppins" alt="Unilanches Logo Rodapé" class="footer-logo">
+                    <p>Sua melhor opção de lanche na Unifucamp. Qualidade e sabor que você merece!</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Navegação</h4>
+                    <ul>
+                        <li><a href="home.html">Início</a></li>
+                        <li><a href="cardapio.html">Cardápio</a></li>
+                        <li><a href="perfil.html">Meu Perfil</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h4>Contato</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> Cantina, Unifucamp</p>
+                    <p><i class="fas fa-phone"></i> (34) 3842-5252</p>
+                    <p><i class="fas fa-envelope"></i> pedidos@unilanches.com.br</p>
+                    <div class="social-icons">
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="Whatsapp"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024-2025 Unilanches. Todos os direitos reservados. Desenvolvido por Alunos de Ciencias Da Computação.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        const API_URL_HOME = '/api'; 
+        // A variável userIsLoggedInHome não é estritamente necessária aqui, pois esta página já é protegida.
+        // A função checkLoginStatus do script.js global cuidará do redirecionamento se não logado.
+
+        // Carrega todas as categorias para a Home
+        async function carregarCategoriasHome() {
+            const categoryFilters = document.getElementById('categoryFiltersHome');
+            if (!categoryFilters) return;
+
+            // Remove botões antigos (exceto “Todos”)
+            const existingFilters = categoryFilters.querySelectorAll('.filter-btn[data-slug]:not([data-slug="todos"])');
+            existingFilters.forEach(btn => btn.remove());
+
+            try {
+                const response = await fetch(`${API_URL_HOME}/categorias`);
+                if (!response.ok) throw new Error('Falha ao buscar categorias');
+                const categorias = await response.json();
+
+                if (categorias.length === 0) return;
+
+                categorias.forEach(cat => {
+                    const filterButton = document.createElement('button');
+                    filterButton.classList.add('filter-btn');
+                    filterButton.setAttribute('data-slug', cat.slug);
+                    filterButton.textContent = cat.nome;
+                    // Ao clicar, chama a função local filterProductsHome
+                    filterButton.onclick = () => filterProductsHome(cat.slug);
+                    categoryFilters.appendChild(filterButton);
+                });
+            } catch (error) {
+                console.error("Erro ao carregar categorias na home:", error);
+            }
+        }
+
+        // Carrega todos os produtos para a Home
+        async function carregarProdutosHome() {
+            const produtoListaDiv = document.getElementById('produtoListaHome');
+            if (!produtoListaDiv) return;
+            produtoListaDiv.innerHTML = '<p>Carregando cardápio completo...</p>';
+
+            try {
+                const response = await fetch(`${API_URL_HOME}/produtos`);
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => ({ message: `Erro HTTP: ${response.status}` }));
+                    throw new Error(errData.message || `Erro ao buscar produtos: ${response.statusText}`);
+                }
+                const produtos = await response.json();
+                // Armazena globalmente para filtrar depois
+                window.todosOsProdutosHome = produtos;
+
+                // Renderiza inicialmente todos os produtos
+                renderizarProdutosFiltradosHome('todos');
+
+            } catch (error) {
+                console.error('Erro ao carregar produtos na home:', error);
+                produtoListaDiv.innerHTML = `<p style="color: red;">Erro ao carregar o cardápio: ${error.message}</p>`;
+            }
+        }
+
+        // Exibe na tela apenas os produtos que baterem com a categoriaSlug
+        function renderizarProdutosFiltradosHome(categoriaSlug) {
+            const produtoListaDiv = document.getElementById('produtoListaHome');
+            produtoListaDiv.innerHTML = '';
+
+            const produtosFiltrados = categoriaSlug === 'todos'
+                ? window.todosOsProdutosHome
+                : window.todosOsProdutosHome.filter(p => p.slug_categoria === categoriaSlug);
+
+            if (produtosFiltrados.length === 0) {
+                let noMatchMsg = document.getElementById('noMatchMessageHome');
+                if (!noMatchMsg) {
+                    noMatchMsg = document.createElement('p');
+                    noMatchMsg.id = 'noMatchMessageHome';
+                    noMatchMsg.style.textAlign = 'center';
+                    noMatchMsg.style.width = '100%';
+                    noMatchMsg.style.padding = '1rem 0';
+                    produtoListaDiv.appendChild(noMatchMsg);
+                }
+                noMatchMsg.textContent = `Nenhum produto encontrado ${categoriaSlug === 'todos' ? 'disponível no momento' : 'nesta categoria'}.`;
+                noMatchMsg.style.display = 'block';
+                return;
+            } else {
+                let noMatchMsg = document.getElementById('noMatchMessageHome');
+                if (noMatchMsg) noMatchMsg.style.display = 'none';
+            }
+
+            produtosFiltrados.forEach(produto => {
+                const produtoItem = document.createElement('div');
+                produtoItem.classList.add('produto-item');
+                produtoItem.dataset.category = produto.slug_categoria || 'sem-categoria';
+
+                const imagemProduto = produto.imagem_url
+                    || `https://placehold.co/400x300/CCCCCC/969696?text=${encodeURIComponent(produto.nome)}&font=Poppins`;
+
+                produtoItem.innerHTML = `
+                    <img src="${imagemProduto}" alt="${produto.nome}"
+                         onerror="this.onerror=null;this.src='https://placehold.co/400x300/CCCCCC/969696?text=Imagem+Indisponível&font=Poppins';">
+                    <div class="produto-info">
+                        <h3>${produto.nome}</h3>
+                        <p class="produto-descricao">${produto.descricao_longa || 'Sem descrição detalhada.'}</p>
+                        <div class="produto-preco-rating">
+                            <span class="produto-preco">R$${parseFloat(produto.preco_venda).toFixed(2).replace('.', ',')}</span>
+                        </div>
+                        <button class="btn-adicionar" onclick="adicionarAoCarrinhoHome(${produto.id})">
+                            <i class="fas fa-cart-plus"></i> Adicionar
+                        </button>
+                    </div>
+                `;
+                produtoListaDiv.appendChild(produtoItem);
+            });
+        }
+
+        // Função de filtragem específica para a Home (igual à lógica do cardápio.html)
+        function filterProductsHome(categoriaSlug) {
+            // Atualiza classe “active” nos botões
+            const botoes = document.querySelectorAll('#categoryFiltersHome .filter-btn');
+            botoes.forEach(btn => btn.classList.remove('active'));
+            const btnAtivo = Array.from(botoes).find(btn => btn.getAttribute('data-slug') === categoriaSlug);
+            if (btnAtivo) btnAtivo.classList.add('active');
+
+            renderizarProdutosFiltradosHome(categoriaSlug);
+        }
+
+        // Função placeholder de “adicionar ao carrinho” na Home
+        function adicionarAoCarrinhoHome(produtoId) {
+            alert(`Produto ID ${produtoId} (Home) - "Adicionar ao Carrinho" a ser implementada!`);
+        }
+
+        // Ao carregar a página, já puxa categorias e produtos
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Preenche o nome do usuário no hero (script.js global já cuidou do login)
+            const nomeUsuarioHeroEl = document.getElementById('nomeUsuarioHero');
+            if (nomeUsuarioHeroEl && window.globalUserStatus && window.globalUserStatus.nome) {
+                nomeUsuarioHeroEl.textContent = window.globalUserStatus.nome;
+            }
+
+            await carregarCategoriasHome();
+            await carregarProdutosHome();
+        });
+    </script>
+</body>
+</html>

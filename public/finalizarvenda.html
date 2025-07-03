@@ -1,0 +1,165 @@
+<!-- public/finalizarvenda.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Finalizar Venda - Unilanches</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .form-group { margin-bottom:1rem; }
+    .form-group label { display:block; font-weight:600; color:var(--text-dark); margin-bottom:0.5rem; }
+    .form-group input, .form-group select {
+      width:100%; padding:0.7rem 1rem;
+      border:1px solid var(--border-color-input);
+      border-radius:var(--border-radius-sm);
+      background:var(--bg-element-light);
+      color:var(--text-dark);
+    }
+    #sales-list { list-style:none; padding:0; }
+    #sales-list li { 
+      margin:0.5rem 0; 
+      padding:0.5rem; 
+      border:1px solid var(--border-color-input); 
+      border-radius:var(--border-radius-sm);
+      cursor:pointer;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <h1>Finalizar Venda</h1>
+
+    <!-- Total da Venda -->
+    <div class="form-group">
+      <label>Total da Venda:</label>
+      <div id="displayTotal" style="font-size:1.5rem;font-weight:700;color:var(--primary-color);">
+        R$ 0,00
+      </div>
+    </div>
+
+    <!-- Formulário de Pagamento -->
+    <form id="payment-form">
+      <div class="form-group">
+        <label for="payment-method">Forma de Pagamento:</label>
+        <select id="payment-method">
+          <option value="dinheiro">Dinheiro</option>
+          <option value="cartao">Cartão</option>
+          <option value="pix">PIX</option>
+        </select>
+      </div>
+      <div id="payment-details"></div>
+      <button type="submit" class="button-cta">Confirmar</button>
+    </form>
+
+    <!-- Lista de Vendas Realizadas -->
+    <section class="sales-registered">
+      <h2>Vendas Realizadas</h2>
+      <ul id="sales-list"></ul>
+    </section>
+  </main>
+
+  <script>
+    // Recupera total e itens do carrinho
+    const params = new URLSearchParams(location.search);
+    const total  = parseFloat(params.get('total')) || 0;
+    const itens  = JSON.parse(localStorage.getItem('carrinho') || '[]');
+    document.getElementById('displayTotal').textContent = `R$ ${total.toFixed(2)}`;
+
+    const paymentMethod  = document.getElementById('payment-method');
+    const paymentDetails = document.getElementById('payment-details');
+
+    // Renderiza campos adicionais de acordo com o método
+    function renderDetails() {
+      const m = paymentMethod.value;
+      let html = '';
+      if (m === 'dinheiro') {
+        html = `
+          <div class="form-group">
+            <label for="cash-received">Valor Recebido:</label>
+            <input type="number" id="cash-received" min="${total}" step="0.01" />
+          </div>
+          <div class="form-group">
+            <label>Troco:</label>
+            <div id="cash-change">R$ 0,00</div>
+          </div>`;
+      }
+      paymentDetails.innerHTML = html;
+
+      if (m === 'dinheiro') {
+        const rec = document.getElementById('cash-received');
+        const ch  = document.getElementById('cash-change');
+        rec?.addEventListener('input', () => {
+          const v = parseFloat(rec.value) || 0;
+          const troco = v - total;
+          ch.textContent = troco >= 0
+            ? `R$ ${troco.toFixed(2)}`
+            : 'Valor insuficiente';
+        });
+      }
+    }
+
+    paymentMethod.addEventListener('change', renderDetails);
+
+    // Submete a venda ao servidor
+    document.getElementById('payment-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const metodo   = paymentMethod.value;
+      let recebido   = null;
+      if (metodo === 'dinheiro') {
+        recebido = parseFloat(document.getElementById('cash-received').value) || 0;
+      }
+
+      try {
+        const resp = await fetch('/api/pdv/vendas', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ itens, metodo, total, recebido })
+        });
+        const json = await resp.json();
+        alert(`${json.message}\nFicha nº: ${json.fichaNumero}`);
+        localStorage.removeItem('carrinho');
+        // Limpa formulário e atualiza lista
+        document.getElementById('payment-form').reset();
+        renderDetails();
+        fetchSales();
+      } catch (err) {
+        alert('Erro ao finalizar venda: ' + err.message);
+      }
+    });
+
+    /**
+     * Busca vendas do dia e popula a lista em #sales-list
+     */
+    async function fetchSales() {
+      const hoje = new Date().toISOString().slice(0,10);
+      try {
+        const resp   = await fetch(`/api/pdv/vendas?data=${hoje}`);
+        const vendas = await resp.json();
+        const ul     = document.getElementById('sales-list');
+        ul.innerHTML = '';
+        vendas.forEach(v => {
+          const li = document.createElement('li');
+          li.innerHTML = `
+            <strong>Ficha #${v.ficha}</strong><br>
+            R$ ${v.totalVenda.toFixed(2)} — ${v.metodo.toUpperCase()}
+          `;
+          li.addEventListener('click', () => {
+            // Aqui você pode abrir modal ou página de edição:
+            alert(`Editar venda ficha ${v.ficha}`);
+          });
+          ul.appendChild(li);
+        });
+      } catch (e) {
+        console.error('Erro ao carregar vendas:', e);
+      }
+    }
+
+    // Inicialização da página
+    document.addEventListener('DOMContentLoaded', () => {
+      renderDetails();
+      fetchSales();
+    });
+  </script>
+</body>
+</html>

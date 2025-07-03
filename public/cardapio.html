@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cardápio - Unilanches</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="topbar">
+        <div class="container">
+            <div class="logo-area">
+                <a href="index.html">
+                    <img src="imagens/logo.png" onerror="this.onerror=null;this.src='https://placehold.co/180x50/E63946/FFFFFF?text=Unilanches&font=Poppins';" alt="Unilanches Logo" class="logo-img">
+                </a>
+            </div>
+            <nav id="mainNav">
+                <a href="index.html" class="nav-link">Início</a>
+                <a href="cardapio.html" class="nav-link active">Cardápio</a> 
+                <!-- Link "Como Pedir" pode ser adicionado se desejar -->
+                <span id="userAuthLinks">
+                    <!-- Links de Entrar/Registrar ou Saudação/Sair serão inseridos aqui pelo script.js -->
+                </span>
+            </nav>
+            <button class="mobile-nav-toggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="mainNav">
+                <i class="fas fa-bars" aria-hidden="true"></i>
+            </button>
+        </div>
+    </header>
+
+    
+        <section id="produtos" class="produtos">
+            <div class="container">
+                <div class="category-filters" id="categoryFiltersCardapio" style="margin-bottom: 2.5rem; text-align: center; display:flex; flex-wrap:wrap; justify-content:center; gap: 0.5rem;">
+                    <button class="filter-btn active" onclick="filterProductsClient('todos', 'produtoListaCardapio')">Todos</button>
+                    <!-- Botões de filtro de categoria serão adicionados aqui pelo JavaScript -->
+                </div>
+
+                <div class="produto-lista" id="produtoListaCardapio">
+                    <!-- Produtos serão carregados aqui -->
+                    <p>Carregando cardápio completo...</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about">
+                    <img src="https://placehold.co/150x40/EFEBE8/3D3A37?text=Unilanches&font=Poppins" alt="Unilanches Logo Rodapé" class="footer-logo">
+                    <p>Sua melhor opção de lanche na Unifucamp. Qualidade e sabor que você merece!</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Navegação</h4>
+                    <ul>
+                        <li><a href="index.html">Início</a></li>
+                        <li><a href="cardapio.html">Cardápio</a></li>
+                        <li><a href="login.html">Login</a></li>
+                        <li><a href="register.html">Registrar</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h4>Contato</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> Cantina Central, Unifucamp</p>
+                    <p><i class="fas fa-phone"></i> (34) 3842-5252</p>
+                    <p><i class="fas fa-envelope"></i> pedidos@unilanches.com.br</p>
+                    <div class="social-icons">
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="Whatsapp"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025-2025 Unilanches. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        const API_URL_CARDAPIO = '/api'; 
+        let userIsLoggedInCardapio = false; // Variável global para status de login nesta página
+
+        // Função para atualizar os links de autenticação no cabeçalho
+        function updateUserAuthLinksCardapio(isLoggedIn, userName) {
+            userIsLoggedInCardapio = isLoggedIn;
+            const authLinksSpan = document.getElementById('userAuthLinks');
+            if (authLinksSpan) {
+                if (isLoggedIn) {
+                    authLinksSpan.innerHTML = `
+                        <span class="nav-link">Olá, <strong>${userName}!</strong></span>
+                        <a href="home.html" class="nav-link">Minha Conta</a>
+                        <a href="#" class="nav-link sair-btn" onclick="logout()">Sair</a>
+                    `;
+                } else {
+                    authLinksSpan.innerHTML = `
+                        <a href="login.html" class="nav-link">Entrar</a>
+                        <a href="register.html" class="button-cta">Criar Conta</a>
+                    `;
+                }
+            }
+        }
+        
+        // Verifica o status do login ao carregar a página do cardápio
+        async function checkLoginStatusCardapio() {
+            try {
+                const response = await fetch(`${API_URL_CARDAPIO}/status`);
+                const data = await response.json();
+                updateUserAuthLinksCardapio(data.logado, data.nome);
+            } catch (error) {
+                console.error("Erro ao verificar status da sessão no cardapio.html:", error);
+                updateUserAuthLinksCardapio(false, null); // Assume não logado em caso de erro
+            }
+        }
+
+
+        async function carregarCategoriasCardapio() {
+            const categoryFilters = document.getElementById('categoryFiltersCardapio');
+            if (!categoryFilters) return;
+
+            const existingFilters = categoryFilters.querySelectorAll('.filter-btn:not([onclick*="todos"])');
+            existingFilters.forEach(btn => btn.remove());
+
+            try {
+                const response = await fetch(`${API_URL_CARDAPIO}/categorias`); // Esta rota precisa ser pública ou verificada no backend
+                if (!response.ok) throw new Error('Falha ao buscar categorias');
+                const categorias = await response.json();
+
+                if (categorias.length === 0) return;
+
+                categorias.forEach(cat => {
+                    const filterButton = document.createElement('button');
+                    filterButton.classList.add('filter-btn');
+                    filterButton.textContent = cat.nome;
+                    filterButton.onclick = () => filterProductsClient(cat.slug, 'produtoListaCardapio');
+                    categoryFilters.appendChild(filterButton);
+                });
+
+            } catch (error) {
+                console.error("Erro ao carregar categorias no cardapio.html:", error);
+            }
+        }
+
+        async function carregarProdutosCardapio() {
+            const produtoListaDiv = document.getElementById('produtoListaCardapio');
+            if (!produtoListaDiv) return;
+            produtoListaDiv.innerHTML = '<p>Carregando cardápio completo...</p>';
+
+            try {
+                const response = await fetch(`${API_URL_CARDAPIO}/produtos`);
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => ({ message: `Erro HTTP: ${response.status}` }));
+                    throw new Error(errData.message || `Erro ao buscar produtos: ${response.statusText}`);
+                }
+                const produtos = await response.json();
+                window.todosOsProdutosCardapio = produtos; 
+
+                renderizarProdutosFiltradosCardapio('todos'); 
+
+            } catch (error) {
+                console.error('Erro ao carregar produtos no cardapio.html:', error);
+                produtoListaDiv.innerHTML = `<p style="color: red;">Erro ao carregar o cardápio: ${error.message}</p>`;
+            }
+        }
+
+        function renderizarProdutosFiltradosCardapio(categoriaSlug) {
+            const produtoListaDiv = document.getElementById('produtoListaCardapio');
+            produtoListaDiv.innerHTML = ''; 
+
+            const produtosFiltrados = categoriaSlug === 'todos' ?
+                window.todosOsProdutosCardapio :
+                window.todosOsProdutosCardapio.filter(p => p.slug_categoria === categoriaSlug);
+
+            if (produtosFiltrados.length === 0) {
+                let noMatchMsg = document.getElementById('noMatchMessageCardapio');
+                if (!noMatchMsg) {
+                    noMatchMsg = document.createElement('p');
+                    noMatchMsg.id = 'noMatchMessageCardapio';
+                    noMatchMsg.style.textAlign = 'center';
+                    noMatchMsg.style.width = '100%';
+                    noMatchMsg.style.padding = '1rem 0';
+                    produtoListaDiv.appendChild(noMatchMsg);
+                }
+                noMatchMsg.textContent = `Nenhum produto encontrado ${categoriaSlug === 'todos' ? 'disponível no momento' : 'nesta categoria'}.`;
+                noMatchMsg.style.display = 'block';
+                return;
+            } else {
+                 let noMatchMsg = document.getElementById('noMatchMessageCardapio');
+                if (noMatchMsg) noMatchMsg.style.display = 'none';
+            }
+
+            produtosFiltrados.forEach(produto => {
+                const produtoItem = document.createElement('div');
+                produtoItem.classList.add('produto-item');
+                produtoItem.dataset.category = produto.slug_categoria || 'sem-categoria';
+
+                const imagemProduto = produto.imagem_url || `https://placehold.co/400x300/CCCCCC/969696?text=${encodeURIComponent(produto.nome)}&font=Poppins`;
+                
+                produtoItem.innerHTML = `
+                    <img src="${imagemProduto}" alt="${produto.nome}" onerror="this.onerror=null;this.src='https://placehold.co/400x300/CCCCCC/969696?text=Imagem+Indisponível&font=Poppins';">
+                    <div class="produto-info">
+                        <h3>${produto.nome}</h3>
+                        <p class="produto-descricao">${produto.descricao_longa || 'Sem descrição detalhada.'}</p>
+                        <div class="produto-preco-rating">
+                            <span class="produto-preco">R$${parseFloat(produto.preco_venda).toFixed(2).replace('.', ',')}</span>
+                        </div>
+                        <button class="btn-adicionar" onclick="handleAdicionarAoCarrinho(${produto.id})"><i class="fas fa-cart-plus"></i> Adicionar</button>
+                    </div>
+                `;
+                produtoListaDiv.appendChild(produtoItem);
+            });
+        }
+        
+        // A função filterProductsClient já deve estar no script.js global
+        // Se não estiver, copie-a do index.html para cá ou para o script.js global.
+        // Certifique-se que ela usa 'window.todosOsProdutosCardapio' quando chamada a partir desta página.
+        // Para simplificar, vou redefinir uma versão local que usa a variável correta.
+        function filterProductsClient(categorySlug, listaProdutosId) {
+            const produtoListaDiv = document.getElementById(listaProdutosId);
+            if (!produtoListaDiv) return;
+
+            let allProducts;
+            if (listaProdutosId === 'produtoListaIndex') {
+                allProducts = window.todosOsProdutosIndex;
+            } else if (listaProdutosId === 'produtoListaHome') {
+                allProducts = window.todosOsProdutosHome;
+            } else if (listaProdutosId === 'produtoListaCardapio') {
+                allProducts = window.todosOsProdutosCardapio;
+            }
+
+            if (!allProducts) {
+                console.warn("Lista de produtos base não carregada para:", listaProdutosId);
+                return;
+            }
+
+            const buttonsContainerId = listaProdutosId.replace('produtoLista', 'categoryFilters');
+            const buttons = document.querySelectorAll(`#${buttonsContainerId} .filter-btn`);
+            
+            buttons.forEach(button => button.classList.remove('active'));
+            const activeButton = Array.from(buttons).find(btn => {
+                const onclickAttr = btn.getAttribute('onclick');
+                return onclickAttr && onclickAttr.includes(`'${categorySlug}'`);
+            });
+            if (activeButton) {
+                activeButton.classList.add('active');
+            }
+
+            if (listaProdutosId === 'produtoListaIndex') {
+                renderizarProdutosFiltradosIndex(categorySlug); // Função específica do index.html
+            } else if (listaProdutosId === 'produtoListaHome') {
+                renderizarProdutosFiltradosHome(categorySlug); // Função específica do home.html
+            } else if (listaProdutosId === 'produtoListaCardapio') {
+                renderizarProdutosFiltradosCardapio(categorySlug);
+            }
+        }
+
+
+        function handleAdicionarAoCarrinho(produtoId) {
+            if (userIsLoggedInCardapio) {
+                // Lógica para adicionar ao carrinho (a ser implementada)
+                alert(`Produto ID ${produtoId} adicionado ao carrinho! (Funcionalidade do carrinho a ser implementada)`);
+                // Exemplo: addToCartAPI(produtoId);
+            } else {
+                alert('Você precisa estar logado para adicionar produtos ao carrinho. Redirecionando para login...');
+                window.location.href = 'login.html';
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            await checkLoginStatusCardapio(); // Verifica o login e atualiza o header
+            await carregarCategoriasCardapio(); // Carrega categorias para os filtros
+            await carregarProdutosCardapio(); // Carrega os produtos
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Funcionário - Unilanches Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="topbar admin-header">
+        <div class="container">
+            <div class="logo-area">
+                <a href="administracao.html">
+                </a>
+            </div>
+            <nav id="mainNav">
+                <span id="emailUsuario" class="nav-link"></span> <a href="administracao.html" class="nav-link">Painel Principal</a>
+                <a href="#" class="nav-link sair-btn" onclick="logout()">Sair</a>
+            </nav>
+            <button class="mobile-nav-toggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="mainNav">
+                <i class="fas fa-bars" aria-hidden="true"></i>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <section class="form-container">
+            <div class="container">
+                <form id="registerEmployeeForm">
+                    <h2>Cadastrar Novo Funcionário</h2>
+                    
+                    <label for="nomeFunc">Nome Completo</label>
+                    <input type="text" id="nomeFunc" name="nome" placeholder="Nome completo do funcionário" required />
+
+                    <label for="emailFunc">Email (Login)</label>
+                    <input type="email" id="emailFunc" name="email" placeholder="email.funcionario@example.com" required />
+                    
+                    <label for="senhaFunc">Senha</label>
+                    <input type="password" id="senhaFunc" name="senha" placeholder="Crie uma senha para o funcionário" required />
+
+                    <label for="celularFunc">Celular (Opcional)</label>
+                    <input type="tel" id="celularFunc" name="celular" placeholder="(XX) XXXXX-XXXX" />
+
+                    <label for="cpfFunc">CPF</label>
+<input type="text" id="cpfFunc" name="cpf" placeholder="000.000.000-00" required />
+
+<label for="salarioFunc">Salário</label>
+<input type="number" id="salarioFunc" name="salario" placeholder="Ex: 2000.00" step="0.01" required />
+
+<label for="diaPagamentoFunc">Dia do Pagamento</label>
+<input type="number" id="diaPagamentoFunc" name="dia_pagamento" min="1" max="31" required />
+
+<label for="cargoFunc">Cargo</label>
+<input type="text" id="cargoFunc" name="cargo" placeholder="Cargo do funcionário" required />
+
+<label for="dataNascFunc">Data de Nascimento</label>
+<input type="date" id="dataNascFunc" name="data_nascimento" required />
+
+<label for="pixFunc">Chave PIX</label>
+<input type="text" id="pixFunc" name="chave_pix" placeholder="Chave PIX do funcionário" required />
+
+<label for="ruaFunc">Rua</label>
+<input type="text" id="ruaFunc" name="rua" placeholder="Rua" required />
+
+<label for="numeroFunc">Número</label>
+<input type="text" id="numeroFunc" name="numero" placeholder="Número" required />
+
+<label for="bairroFunc">Bairro</label>
+<input type="text" id="bairroFunc" name="bairro" placeholder="Bairro" required />
+
+<label for="cidadeFunc">Cidade</label>
+<input type="text" id="cidadeFunc" name="cidade" placeholder="Cidade" required />
+
+                    
+                    <button type="submit" class="button-cta">Cadastrar Funcionário</button>
+                    <p style="text-align: center; margin-top: 1rem;"><a href="administracao.html" class="nav-link" style="font-size:0.9rem;">Voltar ao Painel</a></p>
+                </form>
+            </div>
+        </section>
+    </main>
+    
+    <footer style="background-color: var(--bg-main); border-top: 1px solid var(--border-color); padding: 1.5rem 0;">
+        <div class="container">
+            <div class="footer-bottom" style="text-align: center; color: var(--text-light);">
+                <p>&copy; 2025-2025 Unilanches - Painel Administrativo.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script> 
+    <script>
+        const mobileNavToggle = document.querySelector('.mobile-nav-toggle');
+        const mainNav = document.getElementById('mainNav');
+
+        if (mobileNavToggle && mainNav) {
+            mobileNavToggle.addEventListener('click', () => {
+                const isExpanded = mainNav.classList.toggle('active');
+                mobileNavToggle.setAttribute('aria-expanded', isExpanded);
+                const icon = mobileNavToggle.querySelector('i');
+                icon.classList.toggle('fa-bars');
+                icon.classList.toggle('fa-times');
+            });
+        }
+        // O script.js principal deverá ser atualizado para incluir a lógica do formulário 'registerEmployeeForm'
+        // e a função logout() se já não estiver globalmente acessível.
+    </script>
+</body>
+</html>

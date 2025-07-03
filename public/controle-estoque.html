@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Estoque - Unilanches Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .table-container {
+            overflow-x: auto;
+            margin-top: 1.5rem;
+            background-color: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: var(--border-radius-md);
+            box-shadow: var(--shadow-sm);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            text-align: left;
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+        th {
+            background-color: var(--bg-element-light);
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.9rem;
+        }
+        td {
+            font-size: 0.85rem;
+        }
+        .stock-input {
+            width: 80px;
+            padding: 0.5rem;
+            margin-right: 0.5rem;
+            text-align: center;
+            border: 1px solid var(--border-color-input);
+            border-radius: var(--border-radius-sm);
+        }
+        .btn-update-stock {
+            padding: 0.5rem 0.8rem;
+            font-size: 0.8rem;
+            background-color: var(--admin-primary-color);
+            color: white;
+            border-radius: var(--border-radius-sm);
+        }
+        .btn-update-stock:hover {
+            background-color: var(--admin-primary-dark);
+        }
+        .search-filter-stock-container {
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            background-color: var(--bg-card);
+            border-radius: var(--border-radius-md);
+            box-shadow: var(--shadow-sm);
+        }
+        .search-filter-stock {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+        .search-filter-stock .form-group {
+            flex-grow: 1;
+            min-width: 200px;
+            margin-bottom: 0;
+        }
+        .search-filter-stock label {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .search-filter-stock input[type="text"],
+        .search-filter-stock select {
+            width: 100%;
+            padding: 0.7rem 0.9rem;
+        }
+        .search-filter-stock button {
+            padding: 0.7rem 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="topbar admin-header">
+        <div class="container">
+            <div class="logo-area">
+                <a href="administracao.html"></a>
+            </div>
+            <nav id="mainNav">
+                <span id="emailUsuario" class="nav-link"></span>
+                <a href="administracao.html" class="nav-link">Painel Principal</a>
+                <a href="admin-perfil.html" class="nav-link">Meu Perfil</a>
+                <a href="#" class="nav-link sair-btn" onclick="logout()">Sair</a>
+            </nav>
+            <button class="mobile-nav-toggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="mainNav">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <section class="admin-container">
+            <div class="container">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom:1.5rem;">
+                    <h1>Controle de Estoque</h1>
+                    <a href="administracao.html" class="button-secondary" style="border-color: var(--admin-primary-color); color: var(--admin-primary-color);">Voltar ao Painel</a>
+                </div>
+
+                <div class="search-filter-stock-container">
+                    <div class="search-filter-stock">
+                        <div class="form-group">
+                            <label for="searchProductStock">Buscar Produto:</label>
+                            <input type="text" id="searchProductStock" placeholder="Nome ou código do produto...">
+                        </div>
+                        <div class="form-group">
+                            <label for="filterCategoryStock">Filtrar por Categoria:</label>
+                            <select id="filterCategoryStock">
+                                <option value="">Todas as Categorias</option>
+                                <!-- Categorias carregadas pelo JS -->
+                            </select>
+                        </div>
+                        <button onclick="applyStockFilters()" class="button-cta" style="background-color:var(--admin-primary-color);">Buscar</button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table id="stockTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Produto</th>
+                                <th>Categoria</th>
+                                <th>Estoque Atual</th>
+                                <th>Ajustar Estoque</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stockTableBody">
+                            <tr><td colspan="5" style="text-align:center;">Carregando dados de estoque...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer style="background-color: var(--bg-main); border-top: 1px solid var(--border-color); padding: 1.5rem 0;">
+        <div class="container">
+            <div class="footer-bottom" style="text-align: center; color: var(--text-light);">
+                <p>&copy; 2024-2025 Unilanches - Painel Administrativo.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        const stockTableBody = document.getElementById('stockTableBody');
+        const searchProductStockInput = document.getElementById('searchProductStock');
+        const filterCategoryStockSelect = document.getElementById('filterCategoryStock');
+        let todosOsProdutosParaEstoque = [];
+
+        async function carregarCategoriasParaFiltroEstoque() {
+            try {
+                if (!window.todasAsCategoriasGlobais || window.todasAsCategoriasGlobais.length === 0) {
+                    await fetchTodasAsCategorias();
+                }
+                filterCategoryStockSelect.innerHTML = '<option value="">Todas as Categorias</option>';
+                window.todasAsCategoriasGlobais.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat.id;
+                    option.textContent = cat.nome;
+                    filterCategoryStockSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Erro ao carregar categorias para filtro de estoque:', error);
+            }
+        }
+
+        async function carregarProdutosParaControleEstoque() {
+            stockTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Carregando dados de estoque...</td></tr>';
+            try {
+                const response = await fetch(`${API_PREFIX_CLIENT}/produtos/estoque`);
+                if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+                todosOsProdutosParaEstoque = await response.json();
+                renderEstoqueTable(todosOsProdutosParaEstoque);
+            } catch (error) {
+                console.error('Erro ao carregar estoque:', error);
+                stockTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">${error.message}</td></tr>`;
+            }
+        }
+
+        function renderEstoqueTable(produtos) {
+            stockTableBody.innerHTML = '';
+            if (!produtos.length) {
+                stockTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Nenhum produto encontrado.</td></tr>';
+                return;
+            }
+            produtos.forEach(produto => {
+                const row = stockTableBody.insertRow();
+                const estoque = produto.quantidade_estoque ?? 0;
+                row.innerHTML = `
+                    <td>${produto.id}</td>
+                    <td>${produto.nome || 'N/A'}</td>
+                    <td>${produto.nome_categoria || 'N/A'}</td>
+                    <td>${estoque}</td>
+                    <td class="action-cell">
+                        <input type="number" class="stock-input" id="stock-input-${produto.id}" value="${estoque}" min="0" placeholder="Nova Qtd.">
+                        <button class="btn-update-stock" onclick="atualizarEstoqueProduto(${produto.id})">Salvar</button>
+                    </td>
+                `;
+            });
+        }
+
+        window.applyStockFilters = function() {
+            const searchTerm = searchProductStockInput.value.toLowerCase();
+            const categoryId = filterCategoryStockSelect.value;
+            const produtosFiltrados = todosOsProdutosParaEstoque.filter(p => {
+                const nomeMatch = p.nome.toLowerCase().includes(searchTerm);
+                const codigoMatch = p.codigo_produto?.toLowerCase().includes(searchTerm);
+                const categoriaMatch = categoryId ? p.categoria_id == categoryId : true;
+                return (nomeMatch || codigoMatch) && categoriaMatch;
+            });
+            renderEstoqueTable(produtosFiltrados);
+        };
+        searchProductStockInput.addEventListener('input', applyStockFilters);
+        filterCategoryStockSelect.addEventListener('change', applyStockFilters);
+
+        window.atualizarEstoqueProduto = async function(id) {
+            const input = document.getElementById(`stock-input-${id}`);
+            const val = parseInt(input.value);
+            if (isNaN(val) || val < 0) return alert('Quantidade inválida.');
+            try {
+                const resp = await fetch(`${API_PREFIX_CLIENT}/produtos/${id}/estoque`, {
+                    method: 'PUT',
+                    headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify({ quantidade_estoque: val })
+                });
+                const data = await resp.json();
+                alert(data.message || 'Estoque atualizado.');
+                if (resp.ok) {
+                    const prod = todosOsProdutosParaEstoque.find(p => p.id === id);
+                    prod.quantidade_estoque = val;
+                    applyStockFilters();
+                }
+            } catch (err) {
+                alert('Erro ao atualizar estoque: ' + err.message);
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await carregarCategoriasParaFiltroEstoque();
+            await carregarProdutosParaControleEstoque();
+        });
+    </script>
+</body>
+</html>

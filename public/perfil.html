@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meu Perfil - Unilanches</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <header class="topbar">
+        <div class="container">
+            <div class="logo-area">
+                <a href="home.html">
+                    <img src="imagens/logo.png" alt="Unilanches Logo" class="logo-img">
+                    </a>
+            </div>
+            <nav>
+                <span id="emailUsuario" class="nav-link"></span> 
+                <a href="home.html" class="nav-link">Cardápio</a>
+                <a href="perfil.html" class="nav-link active">Meu Perfil</a>
+                <a href="#" class="nav-link" onclick="logout()">Sair</a>
+            </nav>
+            <button class="mobile-nav-toggle" aria-label="Abrir menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <section class="form-container">
+            <div class="container">
+                <form id="formSenha">
+                    <h2>Alterar Minha Senha</h2>
+                    
+                    <label for="novaSenha">Nova Senha</label>
+                    <input type="password" id="novaSenha" placeholder="Digite sua nova senha" required />
+                    
+                    <label for="confirmarNovaSenha">Confirmar Nova Senha</label>
+                    <input type="password" id="confirmarNovaSenha" placeholder="Confirme sua nova senha" required />
+
+                    <button type="submit" class="button-cta">Atualizar Senha</button>
+                </form>
+            </div>
+        </section>
+        
+        <section class="order-history-section" style="padding: var(--section-padding-y) 0; background-color: var(--bg-section);">
+            <div class="container">
+                <h2 class="section-title" style="text-align:center; margin-bottom: 2rem;">Meu <span class="highlight">Histórico</span> de Pedidos</h2>
+                <div class="order-list-placeholder" style="text-align:center; padding: 2rem; border: 1px dashed var(--border-color); border-radius: var(--border-radius-md);">
+                    <i class="fas fa-receipt" style="font-size: 3rem; color: var(--text-light); margin-bottom: 1rem;"></i>
+                    <p style="color: var(--text-medium);">Você ainda não tem pedidos no seu histórico.</p>
+                    <p><a href="home.html" class="button-secondary" style="margin-top:1rem; display:inline-block; border-color: var(--secondary-color); color: var(--secondary-color);">Fazer meu primeiro pedido!</a></p>
+                </div>
+                </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about">
+                    <img src="https://placehold.co/150x40/EFEBE8/3D3A37?text=Unilanches&font=Poppins" alt="Unilanches Logo Rodapé" class="footer-logo">
+                    <p>Sua melhor opção de lanche na Unifucamp. Qualidade e sabor que você merece!</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Navegação</h4>
+                    <ul>
+                        <li><a href="home.html">Cardápio</a></li>
+                        <li><a href="perfil.html">Meu Perfil</a></li>
+                        <li><a href="#">Minhas Compras</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h4>Contato</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> Cantina Central, Unifucamp</p>
+                    <p><i class="fas fa-phone"></i> (34) 3842-5252</p>
+                    <p><i class="fas fa-envelope"></i> pedidos@unilanches.com.br</p>
+                    <div class="social-icons">
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="Whatsapp"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024-2025 Unilanches. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Script para menu mobile
+        const mobileNavTogglePage = document.querySelector('.mobile-nav-toggle');
+        const navPage = document.querySelector('.topbar nav');
+        if (mobileNavTogglePage && navPage) {
+            mobileNavTogglePage.addEventListener('click', () => {
+                navPage.classList.toggle('active');
+                const icon = mobileNavTogglePage.querySelector('i');
+                icon.classList.toggle('fa-bars');
+                icon.classList.toggle('fa-times');
+            });
+        }
+
+        // Validação básica de confirmação de senha (exemplo)
+        const formSenha = document.getElementById('formSenha');
+        if (formSenha) {
+            formSenha.addEventListener('submit', function(event) {
+                const novaSenha = document.getElementById('novaSenha').value;
+                const confirmarNovaSenha = document.getElementById('confirmarNovaSenha').value;
+                if (novaSenha !== confirmarNovaSenha) {
+                    alert('As senhas não coincidem. Por favor, verifique.');
+                    event.preventDefault(); // Impede o envio do formulário
+                }
+                // A lógica de envio para o backend já está no seu script.js principal
+            });
+        }
+    </script>
+</body>
+</html>

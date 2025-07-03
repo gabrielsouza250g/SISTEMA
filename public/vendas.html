@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Vendas Registradas - Unilanches</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Topbar/Admin Header -->
+  <header class="admin-header topbar">
+    <div class="container">
+      <div class="logo-area">
+        <a href="administracao.html"><img src="imagens/logo.png" alt="Logo" class="logo-img"></a>
+      </div>
+      <nav>
+        <a href="administracao.html" class="nav-link">Painel</a>
+        <a href="vendas.html" class="nav-link active">Vendas</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="admin-container container">
+    <h1>Vendas Registradas</h1>
+
+    <!-- Filtro por Data e Resumo -->
+    <div class="form-section" style="display:flex; align-items:center; gap:1rem;">
+      <label for="filter-date" class="form-group label">Selecione a Data:</label>
+      <input type="date" id="filter-date" class="input" />
+      <button id="btn-filter" class="btn button-cta">Buscar</button>
+      <!-- Resumo das vendas -->
+      <div id="sales-summary" style="margin-left:auto; text-align:right;">
+        <div>Quantidade: <strong id="total-count">0</strong></div>
+        <div>Valor Total: <strong id="total-value">R$ 0,00</strong></div>
+      </div>
+    </div>
+
+    <!-- Lista de Vendas -->
+    <section class="table-container">
+      <ul id="sales-list"></ul>
+    </section>
+  </main>
+
+  <script>
+    async function fetchSales(date) {
+      try {
+        const resp = await fetch(`/api/pdv/vendas?data=${date}`);
+        if (!resp.ok) throw new Error('Erro ao buscar vendas.');
+        const vendas = await resp.json();
+        const ul = document.getElementById('sales-list');
+        ul.innerHTML = '';
+
+        // Atualiza resumo
+        const totalCount = vendas.length;
+        const totalValue = vendas.reduce((sum, v) => sum + (v.totalVenda || 0), 0);
+        document.getElementById('total-count').textContent = totalCount;
+        document.getElementById('total-value').textContent = `R$ ${totalValue.toFixed(2)}`;
+
+        if (vendas.length === 0) {
+          ul.innerHTML = '<li class="text-center text-medium">Nenhuma venda registrada nesta data.</li>';
+          return;
+        }
+        vendas.forEach(v => {
+          const li = document.createElement('li');
+          li.className = 'p-4 mb-3 bg-card border-radius-md shadow-sm';
+          li.innerHTML = `
+            <div class="flex justify-between mb-2">
+              <span class="font-bold">Ficha #${v.ficha}</span>
+              <span class="text-light text-sm">${new Date(v.data_venda).toLocaleTimeString()}</span>
+            </div>
+            <div>
+              <p>Total: <strong>R$ ${v.totalVenda.toFixed(2)}</strong></p>
+              <p>Método: ${v.metodo.toUpperCase()}</p>
+            </div>
+          `;
+          li.addEventListener('click', () => alert(`Editar venda ficha ${v.ficha}`));
+          ul.appendChild(li);
+        });
+      } catch (err) {
+        console.error(err);
+        document.getElementById('sales-list').innerHTML = `<li class="text-red-500">${err.message}</li>`;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const dateInput = document.getElementById('filter-date');
+      const btnFilter = document.getElementById('btn-filter');
+      const today = new Date().toISOString().slice(0,10);
+      dateInput.value = today;
+      dateInput.value = dateInput.value.replace(/^,\s*/, '');
+      fetchSales(today);
+      btnFilter.addEventListener('click', () => {
+        if (dateInput.value) fetchSales(dateInput.value);
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Produtos - Unilanches Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .form-section {
+            margin-bottom: 2.5rem;
+            padding: 2rem;
+            background-color: var(--bg-card);
+            border-radius: var(--border-radius-md);
+            box-shadow: var(--shadow-sm);
+        }
+        .table-container {
+            overflow-x: auto;
+            margin-top: 1.5rem;
+            background-color: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: var(--border-radius-md);
+            box-shadow: var(--shadow-sm);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            text-align: left;
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+        th {
+            background-color: var(--bg-element-light);
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.9rem;
+        }
+        td {
+            font-size: 0.85rem;
+        }
+        td .btn-action {
+            margin-right: 0.5rem;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            border-radius: var(--border-radius-sm);
+        }
+        .btn-edit {
+            background-color: var(--secondary-color);
+            color: var(--text-on-primary);
+        }
+        .btn-edit:hover {
+            background-color: var(--secondary-dark);
+        }
+        .btn-delete {
+            background-color: var(--primary-color);
+            color: var(--text-on-primary);
+        }
+        .btn-delete:hover {
+            background-color: var(--primary-dark);
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem 1.5rem; 
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.35rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group input[type="url"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+        }
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .form-group-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .form-group-checkbox input[type="checkbox"] {
+            width: auto;
+            margin-bottom: 0;
+        }
+        #productImagePreview {
+            max-width: 100px;
+            max-height: 100px;
+            margin-top: 5px;
+            border-radius: var(--border-radius-sm);
+            object-fit: cover;
+            border: 1px solid var(--border-color);
+        }
+        .price-calculation-note {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: -0.75rem;
+            margin-bottom: 1rem;
+        }
+        /* Para esconder o campo de estoque no modo de edição */
+        #productForm.editing-mode #productStockQuantityGroup {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header class="topbar admin-header">
+        <div class="container">
+            <div class="logo-area">
+                <a href="administracao.html">
+                </a>
+            </div>
+            <nav id="mainNav">
+                <span id="emailUsuario" class="nav-link"></span>
+                <a href="administracao.html" class="nav-link">Painel Principal</a>
+                <a href="admin-perfil.html" class="nav-link">Meu Perfil</a>
+                <a href="#" class="nav-link sair-btn" onclick="logout()">Sair</a>
+            </nav>
+            <button class="mobile-nav-toggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="mainNav">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <section class="admin-container">
+            <div class="container">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom:1.5rem;">
+                    <h1>Gerenciar Produtos</h1>
+                    <a href="administracao.html" class="button-secondary" style="border-color: var(--admin-primary-color); color: var(--admin-primary-color);">Voltar ao Painel</a>
+                </div>
+
+                <div class="form-section">
+                    <h2 id="formProductTitle" style="margin-bottom: 1.5rem;">Novo Produto</h2>
+                    <form id="productForm">
+                        <input type="hidden" id="productId" name="productId">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="productName">Nome do Produto:</label>
+                                <input type="text" id="productName" name="productName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="productCategory">Grupo (Categoria):</label>
+                                <select id="productCategory" name="productCategory" required>
+                                    <option value="">Carregando categorias...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="productCode">Código do Produto (opcional):</label>
+                                <input type="text" id="productCode" name="productCode">
+                            </div>
+                            <div class="form-group">
+                                <label for="productPurpose">Finalidade:</label>
+                                <select id="productPurpose" name="productPurpose">
+                                    <option value="Venda Direta">Venda Direta</option>
+                                    <option value="Uso Interno/Consumo">Uso Interno/Consumo</option>
+                                    <option value="Matéria Prima">Matéria Prima</option>
+                                    <option value="Outro">Outro</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="productUnit">Unidade de Medida:</label>
+                                 <select id="productUnit" name="productUnit">
+                                    <option value="Unidade">Unidade (UN)</option>
+                                    <option value="Kilograma">Kilograma (KG)</option>
+                                    <option value="Grama">Grama (G)</option>
+                                    <option value="Litro">Litro (L)</option>
+                                    <option value="Mililitro">Mililitro (ML)</option>
+                                    <option value="Porção">Porção</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="productInternalRef">Referência Interna (opcional):</label>
+                                <input type="text" id="productInternalRef" name="productInternalRef">
+                            </div>
+                            <div class="form-group">
+                                <label for="productCostPrice">Preço de Custo (R$):</label>
+                                <input type="number" id="productCostPrice" name="productCostPrice" step="0.01" placeholder="Ex: 5.50">
+                            </div>
+                            <div class="form-group">
+                                <label for="productMargin">Margem de Lucro (%):</label>
+                                <input type="number" id="productMargin" name="productMargin" step="0.01" placeholder="Ex: 20 para 20%">
+                            </div>
+                            <div class="form-group">
+                                <label for="productSalePrice">Preço de Venda (R$):</label>
+                                <input type="number" id="productSalePrice" name="productSalePrice" step="0.01" required placeholder="Ex: 10.00">
+                                <p class="price-calculation-note">Será calculado se custo e margem forem preenchidos e este campo estiver vazio.</p>
+                            </div>
+                        
+                             <div class="form-group">
+                                <label for="productImageUrl">URL da Imagem do Produto:</label>
+                                <input type="url" id="productImageUrl" name="productImageUrl" placeholder="https://linkdaimagem.com/foto.jpg">
+                                <img id="productImagePreview" src="#" alt="Prévia" style="display:none;" />
+                            </div>
+                        </div>
+                         <div class="form-group" style="margin-top: 1rem;">
+                            <label for="productDescription">Descrição Longa:</label>
+                            <textarea id="productDescription" name="productDescription" rows="3" placeholder="Detalhes completos do produto..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="productObservations">Observações (internas):</label>
+                            <textarea id="productObservations" name="productObservations" rows="2" placeholder="Anotações importantes..."></textarea>
+                        </div>
+                        <div class="form-group form-group-checkbox">
+                            <input type="checkbox" id="productAvailable" name="productAvailable" checked>
+                            <label for="productAvailable" style="margin-bottom:0;">Produto Disponível (aparece no cardápio)</label>
+                        </div>
+                        <div style="margin-top: 1.5rem;">
+                            <button type="submit" class="button-cta" style="background-color: var(--admin-primary-color);">Salvar Produto</button>
+                            <button type="button" id="cancelEditProductBtn" class="button-secondary" style="display:none; margin-left:10px;">Cancelar Edição</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="table-container" style="margin-top: 3rem;">
+                    <h2 style="margin-bottom: 1rem;">Produtos Cadastrados</h2>
+                    <table id="productsTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>Categoria</th>
+                                <th>Preço Venda</th>
+                            
+                                <th>Disponível</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsTableBody">
+                            
+                            <tr><td colspan="6" style="text-align:center;">Carregando produtos...</td></tr> 
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer style="background-color: var(--bg-main); border-top: 1px solid var(--border-color); padding: 1.5rem 0;">
+        <div class="container">
+            <div class="footer-bottom" style="text-align: center; color: var(--text-light);">
+                <p>&copy; 2024-2025 Unilanches - Painel Administrativo.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script> 
+    <script>
+        // Script específico para gerenciar-produtos.html
+        const productForm = document.getElementById('productForm');
+        const productIdField = document.getElementById('productId');
+        const productNameField = document.getElementById('productName');
+        const productCategoryField = document.getElementById('productCategory');
+        const productCodeField = document.getElementById('productCode');
+        const productPurposeField = document.getElementById('productPurpose');
+        const productUnitField = document.getElementById('productUnit');
+        const productInternalRefField = document.getElementById('productInternalRef');
+        const productCostPriceField = document.getElementById('productCostPrice');
+        const productMarginField = document.getElementById('productMargin');
+        const productSalePriceField = document.getElementById('productSalePrice');
+        const productStockQuantityField = document.getElementById('productStockQuantity'); 
+        const productStockQuantityGroup = document.getElementById('productStockQuantityGroup');
+        const productImageUrlField = document.getElementById('productImageUrl');
+        const productImagePreview = document.getElementById('productImagePreview');
+        const productDescriptionField = document.getElementById('productDescription');
+        const productObservationsField = document.getElementById('productObservations');
+        const productAvailableField = document.getElementById('productAvailable');
+        const productsTableBody = document.querySelector('#productsTable tbody');
+        const cancelEditProductBtn = document.getElementById('cancelEditProductBtn');
+        const formProductTitle = document.getElementById('formProductTitle');
+        // API_PREFIX_CLIENT já deve estar definido no script.js global
+
+        function setFormMode(mode = 'new') { // 'new' or 'edit'
+            if (mode === 'edit') {
+                formProductTitle.textContent = 'Editar Produto';
+                if (productStockQuantityGroup) productStockQuantityGroup.style.display = 'none'; // Esconde estoque ao editar
+                cancelEditProductBtn.style.display = 'inline-block';
+                productForm.classList.add('editing-mode');
+            } else { // new
+                formProductTitle.textContent = 'Novo Produto';
+                if (productStockQuantityGroup) productStockQuantityGroup.style.display = 'block'; // Mostra estoque ao criar
+                productIdField.value = ''; // Limpa ID para garantir que é uma criação
+                cancelEditProductBtn.style.display = 'none';
+                productForm.classList.remove('editing-mode');
+                productForm.reset(); // Limpa o formulário
+                productImagePreview.style.display = 'none';
+                productImagePreview.src = '#';
+            }
+        }
+
+
+        function calculateSalePrice() {
+            const cost = parseFloat(productCostPriceField.value);
+            const margin = parseFloat(productMarginField.value);
+            if (productSalePriceField.value === '' || document.activeElement === productCostPriceField || document.activeElement === productMarginField) {
+                if (!isNaN(cost) && cost > 0 && !isNaN(margin) && margin >= 0) {
+                    const salePrice = cost * (1 + (margin / 100));
+                    productSalePriceField.value = salePrice.toFixed(2);
+                }
+            }
+        }
+
+        if(productCostPriceField) productCostPriceField.addEventListener('input', calculateSalePrice);
+        if(productMarginField) productMarginField.addEventListener('input', calculateSalePrice);
+        
+        if(productImageUrlField && productImagePreview) {
+            productImageUrlField.addEventListener('input', function() {
+                if (this.value && (this.value.startsWith('http://') || this.value.startsWith('https://') || this.value.startsWith('/imagens/'))) {
+                    productImagePreview.src = this.value;
+                    productImagePreview.style.display = 'block';
+                } else {
+                    productImagePreview.src = '#'; 
+                    productImagePreview.style.display = 'none';
+                }
+            });
+        }
+
+        async function fetchProductCategoriesForForm() {
+            try {
+                const response = await fetch(`${API_PREFIX_CLIENT}/categorias`);
+                if (!response.ok) {
+                    let errorMsg = `Falha ao buscar categorias: ${response.status} ${response.statusText}`;
+                     try { const errData = await response.json(); errorMsg = errData.message || errorMsg; } catch (e) {}
+                    throw new Error(errorMsg);
+                }
+                const categories = await response.json();
+                
+                productCategoryField.innerHTML = '<option value="">Selecione uma Categoria</option>'; 
+                if (categories && categories.length > 0) {
+                    categories.forEach(cat => {
+                        const option = document.createElement('option');
+                        option.value = cat.id;
+                        option.textContent = cat.nome;
+                        productCategoryField.appendChild(option);
+                    });
+                } else {
+                     productCategoryField.innerHTML = '<option value="">Nenhuma categoria cadastrada</option>';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar categorias no formulário de produtos:', error);
+                productCategoryField.innerHTML = `<option value="">Erro: ${error.message}</option>`;
+            }
+        }
+
+        async function fetchAllProductsForAdminTable() { 
+            if (!productsTableBody) return;
+            productsTableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Carregando produtos...</td></tr>';
+            try {
+                const response = await fetch(`${API_PREFIX_CLIENT}/produtos/admin`); 
+                if (!response.ok) {
+                     const errData = await response.json().catch(() => ({message: `Erro HTTP: ${response.status}`}));
+                     throw new Error(errData.message || 'Falha ao carregar lista de produtos');
+                }
+                const products = await response.json();
+                renderAdminProductsTable(products);
+            } catch (error) {
+                console.error('Erro ao buscar produtos para admin:', error);
+                productsTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">${error.message}</td></tr>`;
+            }
+        }
+
+        function renderAdminProductsTable(products) {
+            productsTableBody.innerHTML = '';
+            if (products.length === 0) {
+                productsTableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Nenhum produto cadastrado.</td></tr>';
+                return;
+            }
+            products.forEach(product => {
+                const row = productsTableBody.insertRow();
+                row.innerHTML = `
+                    <td>${product.id}</td>
+                    <td>${product.nome || 'N/A'}</td>
+                    <td>${product.nome_categoria || 'Sem Categoria'}</td>
+                    <td>R$${parseFloat(product.preco_venda).toFixed(2).replace('.', ',') || '0,00'}</td>
+                    <td>${product.disponivel ? '<span style="color:green;">Sim</span>' : '<span style="color:red;">Não</span>'}</td>
+                    <td>
+                        <button class="btn-action btn-edit" onclick="editProductHandler(${product.id})"><i class="fas fa-edit"></i> Editar</button>
+                        <button class="btn-action btn-delete" onclick="deleteProductHandler(${product.id})"><i class="fas fa-trash"></i> Deletar</button>
+                    </td>
+                `;
+            });
+        }
+
+        productForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const id = productIdField.value;
+            const produtoData = {
+                nome: productNameField.value,
+                categoria_id: productCategoryField.value,
+                codigo_produto: productCodeField.value || null,
+                finalidade: productPurposeField.value,
+                unidade_medida: productUnitField.value,
+                referencia_interna: productInternalRefField.value || null,
+                preco_custo: parseFloat(productCostPriceField.value) || 0,
+                margem_lucro: productMarginField.value !== '' ? parseFloat(productMarginField.value) : null,
+                preco_venda_manual: productSalePriceField.value !== '' ? parseFloat(productSalePriceField.value) : null,
+                // quantidade_estoque SÓ É ENVIADO NA CRIAÇÃO (quando não há ID)
+                imagem_url: productImageUrlField.value || null,
+                descricao_longa: productDescriptionField.value || null,
+                observacoes: productObservationsField.value || null,
+                disponivel: productAvailableField.checked
+            };
+
+            if (!id) { // Se for um novo produto, adicione a quantidade de estoque
+                produtoData.quantidade_estoque = parseInt(productStockQuantityField.value) >= 0 ? parseInt(productStockQuantityField.value) : 0;
+            }
+            
+            const method = id ? 'PUT' : 'POST';
+            const url = id ? `${API_PREFIX_CLIENT}/produtos/${id}` : `${API_PREFIX_CLIENT}/produtos`;
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(produtoData)
+                });
+                const data = await response.json();
+                alert(data.message);
+                if (response.ok) {
+                    setFormMode('new'); // Reseta formulário e título
+                    fetchAllProductsForAdminTable(); 
+                }
+            } catch (error) {
+                console.error('Erro ao salvar produto:', error);
+                alert(error.message || 'Erro ao salvar produto. Verifique o console.');
+            }
+        });
+
+        window.editProductHandler = async function(id) { 
+            try {
+                const response = await fetch(`${API_PREFIX_CLIENT}/produtos/admin`); 
+                if(!response.ok) throw new Error('Falha ao buscar dados do produto para edição');
+                const products = await response.json();
+                const product = products.find(p => p.id === id);
+
+                if(product){
+                    setFormMode('edit'); // Configura o formulário para o modo de edição
+                    productIdField.value = product.id;
+                    productNameField.value = product.nome;
+                    productCategoryField.value = product.categoria_id; 
+                    productCodeField.value = product.codigo_produto || '';
+                    productPurposeField.value = product.finalidade || 'Venda Direta';
+                    productUnitField.value = product.unidade_medida || 'Unidade';
+                    productInternalRefField.value = product.referencia_interna || '';
+                    productCostPriceField.value = product.preco_custo !== null ? parseFloat(product.preco_custo).toFixed(2) : '';
+                    productMarginField.value = product.margem_lucro !== null ? parseFloat(product.margem_lucro).toFixed(2) : '';
+                    productSalePriceField.value = product.preco_venda !== null ? parseFloat(product.preco_venda).toFixed(2) : '';
+                    // Não preenche productStockQuantityField aqui no modo de edição
+                    productImageUrlField.value = product.imagem_url || '';
+                    productDescriptionField.value = product.descricao_longa || '';
+                    productObservationsField.value = product.observacoes || '';
+                    productAvailableField.checked = product.disponivel;
+
+                    if (product.imagem_url) {
+                        productImagePreview.src = product.imagem_url;
+                        productImagePreview.style.display = 'block';
+                    } else {
+                        productImagePreview.src = '#';
+                        productImagePreview.style.display = 'none';
+                    }
+                    productNameField.focus();
+                    window.scrollTo({ top: productForm.offsetTop - 80, behavior: 'smooth' });
+                } else {
+                    alert('Produto não encontrado para edição.');
+                }
+            } catch (error) {
+                console.error('Erro ao preparar edição do produto:', error);
+                alert(error.message || 'Não foi possível carregar os dados do produto para edição.');
+            }
+        }
+        
+        if(cancelEditProductBtn) { 
+            cancelEditProductBtn.addEventListener('click', () => {
+                setFormMode('new'); // Reseta para o modo de novo produto
+            });
+        }
+
+        window.deleteProductHandler = async function(id) { 
+            if (!confirm('Tem certeza que deseja deletar este produto? Esta ação não pode ser desfeita.')) {
+                return;
+            }
+            try {
+                const response = await fetch(`${API_PREFIX_CLIENT}/produtos/${id}`, { method: 'DELETE' });
+                const data = await response.json();
+                alert(data.message);
+                if (response.ok) {
+                    fetchAllProductsForAdminTable(); 
+                }
+            } catch (error) {
+                console.error('Erro ao deletar produto:', error);
+                alert(error.message || 'Erro ao deletar produto.');
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchProductCategoriesForForm(); 
+            fetchAllProductsForAdminTable(); 
+            setFormMode('new'); // Garante que o formulário comece no modo "Novo Produto"
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administração - Unilanches</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="topbar admin-header"> 
+        <div class="container">
+            <div class="logo-area">
+                <a href="administracao.html">
+                </a>
+            </div>
+            <nav id="mainNav">
+                <span id="emailUsuario" class="nav-link"></span> 
+                <a href="admin-perfil.html" class="nav-link">Meu Perfil</a> <a href="#" class="nav-link sair-btn" onclick="logout()">Sair</a>
+            </nav>
+            <button class="mobile-nav-toggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="mainNav">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <section class="admin-container">
+            <div class="container">
+                <h1>Painel de Controle Administrativo</h1>
+                <p>Gerencie categorias, produtos, estoque, funcionários e visualize informações importantes do sistema Unilanches.</p>
+
+                <div class="grid">
+                    <div class="card" onclick="window.location.href='pdv.html'">
+    <i class="fas fa-cash-register"></i>
+    <h3>Painel de Venda (PDV)</h3>
+    <p class="card-description">Realize vendas locais de forma rápida e prática.</p>
+</div>
+<div class="card" onclick="window.location.href='vendas.html'">
+    <i class="fas fa-receipt"></i>
+    <h3>Consultar Vendas</h3>
+    <p class="card-description">Consulte as vendas realizadas por data.</p>
+</div>
+
+                    <div class="card" onclick="window.location.href='gerenciar-categorias.html'">
+                        <i class="fas fa-tags"></i>
+                        <h3>Gerenciar Categorias</h3>
+                        <p class="card-description">Crie, edite ou remova grupos de produtos.</p>
+                    </div>
+                    <div class="card" onclick="window.location.href='gerenciar-produtos.html'">
+                        <i class="fas fa-hamburger"></i>
+                        <h3>Gerenciar Produtos</h3>
+                        <p class="card-description">Adicione, edite ou remova itens do cardápio.</p>
+                    </div>
+                    <div class="card" onclick="window.location.href='controle-estoque.html'"> 
+                        <i class="fas fa-boxes"></i>
+                        <h3>Controle de Estoque</h3>
+                        <p class="card-description">Visualize e atualize a quantidade de produtos em estoque.</p>
+                    </div>
+                    <div class="card" onclick="window.location.href='cadastrar-funcionario.html'">
+                        <i class="fas fa-user-plus"></i>
+                        <h3>Cadastrar Funcionário</h3>
+                        <p class="card-description">Adicione novos usuários com permissão de funcionário.</p>
+                    </div>
+                    <div class="card" onclick="window.location.href='ver-funcionarios.html'">
+    <i class="fas fa-address-book"></i>
+    <h3>Funcionários Cadastrados</h3>
+    <p class="card-description">Visualize todos os funcionários registrados no sistema.</p>
+</div>
+
+                     <div class="card" onclick="window.location.href='admin-perfil.html'"> <i class="fas fa-user-shield"></i>
+                        <h3>Meu Perfil Admin</h3>
+                        <p class="card-description">Altere sua senha de administrador.</p>
+                    </div>
+                    <div class="card" onclick="alert('Funcionalidade de Clientes Cadastrados será implementada em breve.')">
+                        <i class="fas fa-users"></i>
+                        <h3>Clientes Cadastrados</h3>
+                        <p class="card-description">Visualize a lista de usuários cadastrados.</p>
+                    </div>
+                     <div class="card" onclick="alert('Funcionalidade de Configurações Gerais será implementada em breve.')">
+                        <i class="fas fa-cog"></i>
+                        <h3>Configurações</h3>
+                        <p class="card-description">Ajuste informações da lanchonete e outras opções.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer style="background-color: var(--bg-main); border-top: 1px solid var(--border-color); padding: 1.5rem 0;">
+        <div class="container">
+            <div class="footer-bottom" style="text-align: center; color: var(--text-light);">
+                <p>&copy; 2025-2025 Unilanches - Painel Administrativo.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+
+</body>
+</html>

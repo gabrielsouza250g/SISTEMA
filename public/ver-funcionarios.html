@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Funcionários - Unilanches Admin</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .btn-switch {
+      margin-right: 10px;
+      padding: 10px 15px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-switch.active {
+      background-color: #0056b3;
+    }
+
+    .btn-danger {
+      background-color: crimson;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .btn-reativar {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar admin-header">
+    <div class="container">
+      <div class="logo-area">
+        <a href="administracao.html">
+          <img src="https://placehold.co/180x50/FFFFFF/007BFF?text=Unilanches+Admin" alt="Unilanches Admin Logo" class="logo-img" />
+        </a>
+      </div>
+      <nav>
+        <a href="administracao.html" class="nav-link">Painel Principal</a>
+        <a href="#" class="nav-link sair-btn" onclick="logout()">Sair</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <h2 style="margin-top:2rem;">Funcionários</h2>
+
+    <div style="margin: 20px 0;">
+      <button id="btnAtivos" class="btn-switch active" onclick="mostrarFuncionarios(true)">Ver Ativos</button>
+      <button id="btnInativos" class="btn-switch" onclick="mostrarFuncionarios(false)">Ver Inativos</button>
+    </div>
+
+    <div class="table-container" style="overflow-x:auto;">
+      <table id="tabelaFuncionarios" class="tabela-admin">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>CPF</th>
+            <th>Cargo</th>
+            <th>Salário</th>
+            <th>Pagamento (Dia)</th>
+            <th>PIX</th>
+            <th>Endereço</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    let mostrandoAtivos = true;
+
+    async function mostrarFuncionarios(ativos = true) {
+      mostrandoAtivos = ativos;
+      document.getElementById('btnAtivos').classList.toggle('active', ativos);
+      document.getElementById('btnInativos').classList.toggle('active', !ativos);
+
+      const rota = ativos ? '/api/funcionarios' : '/api/funcionarios/inativos';
+      try {
+        const res = await fetch(rota);
+        if (!res.ok) throw new Error("Erro ao carregar funcionários");
+        const funcionarios = await res.json();
+
+        const tbody = document.querySelector('#tabelaFuncionarios tbody');
+        tbody.innerHTML = '';
+
+        funcionarios.forEach(f => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${f.nome}</td>
+            <td>${f.email}</td>
+            <td>${f.cpf}</td>
+            <td>${f.cargo}</td>
+            <td>R$ ${parseFloat(f.salario).toFixed(2).replace('.', ',')}</td>
+            <td>${f.dia_pagamento}</td>
+            <td>${f.chave_pix}</td>
+            <td>${f.rua}, ${f.numero}, ${f.bairro} - ${f.cidade}</td>
+            <td>
+              ${ativos
+                ? `<button onclick="inativarFuncionario(${f.id})" class="btn-danger">Inativar</button>`
+                : `<button onclick="reativarFuncionario(${f.id})" class="btn-reativar">Reativar</button>`}
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        alert('Erro ao carregar funcionários.');
+        console.error(err);
+      }
+    }
+
+    async function inativarFuncionario(id) {
+      if (!confirm('Deseja mesmo inativar este funcionário?')) return;
+      try {
+        const res = await fetch(`/api/funcionarios/inativar/${id}`, { method: 'PUT' });
+        const data = await res.json();
+        alert(data.message);
+        mostrarFuncionarios(true);
+      } catch (err) {
+        alert('Erro ao inativar funcionário.');
+        console.error(err);
+      }
+    }
+
+    async function reativarFuncionario(id) {
+      if (!confirm('Deseja reativar este funcionário?')) return;
+      try {
+        const res = await fetch(`/api/funcionarios/reativar/${id}`, { method: 'PUT' });
+        const data = await res.json();
+        alert(data.message);
+        mostrarFuncionarios(false);
+      } catch (err) {
+        alert('Erro ao reativar funcionário.');
+        console.error(err);
+      }
+    }
+
+    // Carrega inicialmente os ativos
+    mostrarFuncionarios(true);
+  </script>
+</body>
+</html>

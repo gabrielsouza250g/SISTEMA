@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meu Perfil (Admin) - Unilanches</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <header class="topbar admin-header">
+        <div class="container">
+            <div class="logo-area">
+                <a href="administracao.html">
+                    <img src="https://placehold.co/180x50/FFFFFF/007BFF?text=Unilanches+Admin&font=Poppins" alt="Unilanches Admin Logo" class="logo-img">
+                </a>
+            </div>
+            <nav id="mainNav">
+                <span id="emailUsuario" class="nav-link"></span> 
+                <a href="administracao.html" class="nav-link">Painel Principal</a>
+                <a href="admin-perfil.html" class="nav-link active">Meu Perfil</a>
+                <a href="#" class="nav-link sair-btn" onclick="logout()">Sair</a>
+            </nav>
+            <button class="mobile-nav-toggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="mainNav">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <section class="form-container">
+            <div class="container">
+                <form id="formAdminSenha"> 
+                    <h2>Alterar Minha Senha (Admin)</h2>
+                    
+                    <label for="adminNovaSenha">Nova Senha</label>
+                    <input type="password" id="adminNovaSenha" name="adminNovaSenha" placeholder="Digite sua nova senha" required />
+                    
+                    <label for="adminConfirmarNovaSenha">Confirmar Nova Senha</label>
+                    <input type="password" id="adminConfirmarNovaSenha" name="adminConfirmarNovaSenha" placeholder="Confirme sua nova senha" required />
+                    
+                    
+
+                    <button type="submit" class="button-cta">Atualizar Senha</button>
+                     <p style="text-align: center; margin-top: 1rem;"><a href="administracao.html" class="nav-link" style="font-size:0.9rem;">Voltar ao Painel</a></p>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer style="background-color: var(--bg-main); border-top: 1px solid var(--border-color); padding: 1.5rem 0;">
+        <div class="container">
+            <div class="footer-bottom" style="text-align: center; color: var(--text-light);">
+                <p>&copy; 2025-2025 Unilanches - Painel Administrativo.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // O script.js global já chama checkLoginStatusAndSetupPage(), que protegerá esta página.
+        // A lógica para o formulário #formAdminSenha será adicionada ao script.js global.
+        // O script para o menu mobile também está no script.js global.
+    </script>
+</body>
+</html>

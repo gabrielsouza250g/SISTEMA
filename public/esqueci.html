@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recuperar Senha - Unilanches</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <header class="topbar">
+        <div class="container">
+            <div class="logo-area">
+                <a href="index.html">
+                    <img src="imagens/logo.png" alt="Unilanches Logo" class="logo-img">
+                    </a>
+            </div>
+            <nav>
+                <a href="index.html" class="nav-link">Início</a>
+                <a href="login.html" class="nav-link">Login</a>
+            </nav>
+            <button class="mobile-nav-toggle" aria-label="Abrir menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <section class="form-container">
+            <div class="container">
+                <form id="resetForm">
+                    <h2>Recuperar sua Senha</h2>
+                    <p style="text-align: center; margin-bottom: 1.5rem; font-size: 0.95rem; color: var(--text-medium);">
+                        Digite seu email institucional abaixo. Se estiver cadastrado, enviaremos uma nova senha para você.
+                    </p>
+                    
+                    <label for="email">Email Institucional</label>
+                    <input type="email" id="email" placeholder="seuemail@unifucamp.edu.br" required />
+                    
+                    <button type="submit" class="button-cta">Enviar Nova Senha</button>
+                    
+                    <p><a href="login.html">Voltar para o Login</a></p>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about">
+                    <img src="https://placehold.co/150x40/EFEBE8/3D3A37?text=Unilanches&font=Poppins" alt="Unilanches Logo Rodapé" class="footer-logo">
+                    <p>Matando sua fome na universidade com sabor e praticidade. Lanches feitos com carinho!</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Links Úteis</h4>
+                    <ul>
+                        <li><a href="index.html#produtos">Cardápio</a></li>
+                        <li><a href="login.html">Login</a></li>
+                        <li><a href="register.html">Criar Conta</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h4>Fale Conosco</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> Praça da Cantina, Campus Unifucamp</p>
+                    <p><i class="fas fa-phone"></i> (34) 99999-9999</p>
+                    <p><i class="fas fa-envelope"></i> contato@unilanches.com.br</p>
+                    <div class="social-icons">
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="Whatsapp"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024-2025 Unilanches. Todos os direitos reservados. Feito com <i class="fas fa-heart"></i>.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Script para menu mobile
+        const mobileNavTogglePage = document.querySelector('.mobile-nav-toggle');
+        const navPage = document.querySelector('.topbar nav');
+        if (mobileNavTogglePage && navPage) {
+            mobileNavTogglePage.addEventListener('click', () => {
+                navPage.classList.toggle('active');
+                const icon = mobileNavTogglePage.querySelector('i');
+                icon.classList.toggle('fa-bars');
+                icon.classList.toggle('fa-times');
+            });
+        }
+    </script>
+</body>
+</html>
